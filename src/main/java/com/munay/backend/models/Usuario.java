@@ -1,121 +1,53 @@
 package com.munay.backend.models;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import jakarta.validation.constraints.*;
 import java.util.List;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(collection = "usuarios")
 public class Usuario {
 
     @Id
     private String id;
-
+    @NotBlank(message = "El nombre es obligatorio.")
     private String name;
+
+    @NotBlank(message = "El email es obligatorio.")
+    @Email(message = "El email debe ser válido.")
+    @Indexed(unique = true)
     private String email;
+
+    @NotBlank(message = "La contraseña es obligatoria.")
     private String password;
+
+    @Min(value = 18, message = "La edad debe ser al menos 18 años.")
     private int age;
+
+    @NotNull(message = "El teléfono es obligatorio.")
+    @Min(value = 600000000, message = "El teléfono debe ser un número válido.")
+    @Max(value = 799999999, message = "El teléfono debe ser un número válido.")
     private long tel;
+
+    @NotBlank(message = "La biografía es obligatoria.")
     private String bio;
-    private List<String> fotosUrl;
-    private List<String> likes;    // IDs de usuarios a los que le dio like
-    private List<String> matches;  // IDs de matches confirmados
+    @NotNull(message = "La primera foto es obligatoria")
+    byte[] foto1;
+    @NotNull(message = "La segunda foto es obligatoria")
+    byte[] foto2;
 
-    // Constructor vacío requerido por Spring
-    public Usuario() {
-    }
-
-    public Usuario(String id, String name, String email, String password, int age, long tel, String bio, List<String> fotosUrl, List<String> likes, List<String> matches) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.age = age;
-        this.tel = tel;
-        this.bio = bio;
-        this.fotosUrl = fotosUrl;
-        this.likes = likes;
-        this.matches = matches;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public long getTel() {
-        return tel;
-    }
-
-    public void setTel(long tel) {
-        this.tel = tel;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public List<String> getFotosUrl() {
-        return fotosUrl;
-    }
-
-    public void setFotosUrl(List<String> fotosUrl) {
-        this.fotosUrl = fotosUrl;
-    }
-
-    public List<String> getLikes() {
-        return likes;
-    }
-
-    public void setLikes(List<String> likes) {
-        this.likes = likes;
-    }
-
-    public List<String> getMatches() {
-        return matches;
-    }
-
-    public void setMatches(List<String> matches) {
-        this.matches = matches;
-    }
+   // private List<String> fotosUrl;
+    //private List<String> likes;    // IDs de usuarios a los que le dio like
+    //private List<String> matches;  // IDs de matches confirmados
 }
 
