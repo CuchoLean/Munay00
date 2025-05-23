@@ -29,25 +29,13 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, BindingResult bindingResult) {
-        if (!request.password().equals(request.confirmPassword()) && (!request.password().equals(""))) {
-            bindingResult.addError(new FieldError("request", "password", "Las contraseñas no coinciden."));
-        }
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            for (FieldError error : bindingResult.getFieldErrors()) {
-                errors.put(error.getField(), error.getDefaultMessage());
-            }
-            return ResponseEntity.badRequest().body(errors);
-        }
-
+    public ResponseEntity<TokenResponse> register(@Valid @RequestBody RegisterRequest request) {
         TokenResponse tokenResponse = service.register(request);
         return ResponseEntity.ok(tokenResponse);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody final LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody final LoginRequest request) {
         final TokenResponse token = service.login(request);
         return ResponseEntity.ok(token);
     }

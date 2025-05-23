@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,13 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public TokenResponse register(RegisterRequest request)  {
+    public TokenResponse register(RegisterRequest request) {
+
+        //recibo string en b64 y los convierto en bytes
+        String foto1Base64 = request.foto1().split(",")[1];
+        String foto2Base64 = request.foto2().split(",")[1];
+        byte[] foto1 = Base64.getDecoder().decode(foto1Base64);
+        byte[] foto2 = Base64.getDecoder().decode(foto2Base64);
 
         Usuario usuario = Usuario.builder()
                 .name(request.name())
@@ -36,10 +43,9 @@ public class AuthService {
                 .age(request.age())
                 .tel(request.tel())
                 .bio(request.bio())
-                .foto1(request.foto1())
-                .foto2(request.foto2())
+                .foto1(foto1)
+                .foto2(foto2)
                 .build();
-        System.out.println("uer; "+usuario );
         usuarioRepository.save(usuario);
         var jwtToken = jwtService.generateToken(usuario);
         var refreshToken = jwtService.generateRefreshToken(usuario);
