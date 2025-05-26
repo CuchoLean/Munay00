@@ -5,5 +5,7 @@ import com.munay.backend.models.Match;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface MatchRepository  extends MongoRepository<Match,String> {
-        Match findByEmailUsuario1AndEmailUsuario2(String email1, String email2);
+        boolean existsByIdUsuario1AndIdUsuario2(String idUsuario1, String idUsuario2);
+        boolean existsByIdUsuario2AndIdUsuario1(String idUsuario2, String idUsuario1); // Corrected
+
 }

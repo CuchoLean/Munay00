@@ -33,7 +33,7 @@ public class JwtService {
 
     private String buildToken(final Usuario usuario, final long expiration) {
     return Jwts.builder()
-            .claims(Map.of("name", usuario.getName()))
+            .claims(Map.of("id", usuario.getId()))
             .subject(usuario.getEmail()).issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + expiration))
             .signWith(getSignInKey())

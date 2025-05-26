@@ -25,9 +25,4 @@ public class MatchController {
         return matchRepository.findAll();
     }
 
-    // Buscar usuario por email
-    @GetMapping("/buscar")
-    public Match buscarPorEmail(@RequestParam String email1, String email2) {
-        return matchRepository.findByEmailUsuario1AndEmailUsuario2(email1, email2);
-    }
 }

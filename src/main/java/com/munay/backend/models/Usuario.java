@@ -29,5 +29,7 @@ public class Usuario {
     private String bio;
     private byte[] foto1;
     private byte[] foto2;
+    private List<String> likes;
+
 }
 
