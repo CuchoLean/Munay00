@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -91,12 +92,23 @@ public class UsuarioController {
         return ResponseEntity.ok("El like ha sido enviado.");
     }
 
-    @GetMapping("/{userId}/matches")
-    public ResponseEntity<List<Match>> obtenerMatches(@PathVariable String userId) {
+    @GetMapping("/{userId}/usuarios-match")
+    public ResponseEntity<List<Usuario>> obtenerUsuariosConMatch(@PathVariable String userId) {
+        // Paso 1: Filtrar los matches en los que participa
         List<Match> matches = matchRepository.findAll().stream()
-                .filter(m -> m.getIdUsuario1().equals(userId) || m.getIdUsuario2().equals(userId))
+                .filter(m -> Objects.equals(m.getIdUsuario1(), userId) || Objects.equals(m.getIdUsuario2(), userId))
                 .toList();
-        return ResponseEntity.ok(matches);
+
+        List<String> otrosIds = matches.stream()
+                .map(m -> Objects.equals(m.getIdUsuario1(), userId) ? m.getIdUsuario2() : m.getIdUsuario1())
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        // Paso 3: Obtener los usuarios de la base de datos
+        List<Usuario> usuarios = usuarioRepository.findAllById(otrosIds);
+
+        return ResponseEntity.ok(usuarios);
     }
 
     @GetMapping("/todosL")

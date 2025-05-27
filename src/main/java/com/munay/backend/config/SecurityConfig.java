@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**")
                         .permitAll()
+                        .requestMatchers("/us/**").permitAll()   // <--- Permitir acceso público a tu endpoint WebSocket
+
                         .anyRequest()
                         .authenticated()
                 )
@@ -60,12 +62,12 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3000")); // permite solo desde este origen
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // métodos permitidos
-        config.setAllowedHeaders(List.of("*")); // permite todos los headers
-        config.setAllowCredentials(true); // si usas cookies o autenticación
+        config.setAllowedOriginPatterns(List.of("http://localhost:3000"));  // usar allowedOriginPatterns para flexibilidad
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config); // aplicar a todas las rutas
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 
