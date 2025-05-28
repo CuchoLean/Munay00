@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -24,11 +25,12 @@ public class MessageController {
 
     @PostMapping("/crear")
     public Message crearMensaje(@RequestBody Message message) {
-        message.setDate(String.valueOf(LocalDateTime.now()));
+        message.setDate(Instant.now().toString());
         return messageRepository.save(message);
     }
     @GetMapping("/historial")
     public List<Message> obtenerHistorial(@RequestParam String user1, @RequestParam String user2) {
-        return messageRepository.findBySenderNameAndReceiverName(user1, user2);
+        return messageRepository.findBySenderNameAndReceiverNameOrSenderNameAndReceiverName(
+                user1, user2, user2, user1);
     }
 }
