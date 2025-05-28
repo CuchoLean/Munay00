@@ -39,8 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**")
                         .permitAll()
-                        .requestMatchers("/us/**").permitAll()   // <--- Permitir acceso público a tu endpoint WebSocket
-
+                        .requestMatchers("/ws/**").permitAll()   // <--- Permitir acceso público a tu endpoint WebSocket
                         .anyRequest()
                         .authenticated()
                 )
