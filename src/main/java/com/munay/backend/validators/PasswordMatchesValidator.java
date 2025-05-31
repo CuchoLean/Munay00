@@ -1,4 +1,4 @@
-package com.munay.backend.config;
+package com.munay.backend.validators;
 
 import com.munay.backend.records.RegisterRequest;
 import com.munay.backend.repositories.PasswordMatches;

@@ -1,10 +1,8 @@
-package com.munay.backend.config;
+package com.munay.backend.validators;
 
-import com.munay.backend.repositories.UniqueEmail;
 import com.munay.backend.repositories.UsuarioRepository;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

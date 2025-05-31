@@ -1,6 +1,5 @@
-package com.munay.backend.repositories;
+package com.munay.backend.validators;
 
-import com.munay.backend.config.UniqueEmailValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

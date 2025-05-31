@@ -3,20 +3,12 @@ package com.munay.backend.controllers;
 import com.munay.backend.records.LoginRequest;
 import com.munay.backend.records.RegisterRequest;
 import com.munay.backend.records.TokenResponse;
-import com.munay.backend.repositories.AuthService;
+import com.munay.backend.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")

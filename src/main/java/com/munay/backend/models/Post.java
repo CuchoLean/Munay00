@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,12 +11,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Document(collection = "mensajes")
-public class Message {
+@Document(collection = "posts")
+public class Post {
     @Id
     private String id;
-    private String senderName;
-    private String receiverName;
-    private String message;
-    private String date;
+    private byte[] imagen;
+    private String texto;
 }

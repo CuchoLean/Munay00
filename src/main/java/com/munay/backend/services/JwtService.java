@@ -1,4 +1,4 @@
-package com.munay.backend.repositories;
+package com.munay.backend.services;
 
 import com.munay.backend.models.Usuario;
 

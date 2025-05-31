@@ -1,24 +1,17 @@
-package com.munay.backend.repositories;
+package com.munay.backend.services;
 
 import com.munay.backend.models.Usuario;
 import com.munay.backend.records.LoginRequest;
 import com.munay.backend.records.RegisterRequest;
 import com.munay.backend.records.TokenResponse;
+import com.munay.backend.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +28,6 @@ public class AuthService {
         String foto2Base64 = request.foto2().split(",")[1];
         byte[] foto1 = Base64.getDecoder().decode(foto1Base64);
         byte[] foto2 = Base64.getDecoder().decode(foto2Base64);
-
         Usuario usuario = Usuario.builder()
                 .name(request.name())
                 .email(request.email())
@@ -45,6 +37,8 @@ public class AuthService {
                 .bio(request.bio())
                 .foto1(foto1)
                 .foto2(foto2)
+                .genero(request.genero())
+                .fumador(request.fumador())
                 .build();
         usuarioRepository.save(usuario);
         var jwtToken = jwtService.generateToken(usuario);

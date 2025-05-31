@@ -1,5 +1,6 @@
 package com.munay.backend.models;
 
+import com.munay.backend.enums.Genero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,8 @@ public class Usuario {
     private String bio;
     private byte[] foto1;
     private byte[] foto2;
+    private Genero genero;
+    private boolean fumador;
     private List<String> likes;
 
 }

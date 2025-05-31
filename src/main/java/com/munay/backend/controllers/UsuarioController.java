@@ -2,15 +2,13 @@ package com.munay.backend.controllers;
 
 import com.munay.backend.models.Match;
 import com.munay.backend.models.Usuario;
-import com.munay.backend.repositories.JwtService;
+import com.munay.backend.services.JwtService;
 import com.munay.backend.repositories.MatchRepository;
 import com.munay.backend.repositories.UsuarioRepository;
 import jakarta.validation.Valid;
-import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -123,5 +121,54 @@ public class UsuarioController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/buscarUsuarioToken")
+    public ResponseEntity<Usuario> obtenerUsuarioPorToken(@RequestHeader("Authorization") String token) {
+        String email = jwtService.extractUsername(token.substring(7)); // quita "Bearer "
+        Usuario usuario = usuarioRepository.findByEmail(email);
+
+        if (usuario == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(usuario, HttpStatus.OK);
+    }
+
+    @PutMapping("/actualizar")
+    public ResponseEntity<Usuario> actualizarUsuario(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody Usuario datosNuevos) {
+
+        String email = jwtService.extractUsername(token.substring(7)); // quitar "Bearer "
+        Usuario usuarioExistente = usuarioRepository.findByEmail(email);
+
+        if (usuarioExistente == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        // Solo actualizar campos válidos
+        usuarioExistente.setName(datosNuevos.getName());
+        usuarioExistente.setPassword(datosNuevos.getPassword());
+        usuarioExistente.setAge(datosNuevos.getAge());
+        usuarioExistente.setTel(datosNuevos.getTel());
+        usuarioExistente.setBio(datosNuevos.getBio());
+        usuarioExistente.setFoto1(datosNuevos.getFoto1());
+        usuarioExistente.setFoto2(datosNuevos.getFoto2());
+
+        Usuario actualizado = usuarioRepository.save(usuarioExistente);
+        return new ResponseEntity<>(actualizado, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/eliminar")
+    public ResponseEntity<String> eliminarUsuarioPorToken(@RequestHeader("Authorization") String token) {
+        String email = jwtService.extractUsername(token.substring(7)); // Quita "Bearer "
+        Usuario usuario = usuarioRepository.findByEmail(email);
+
+        if (usuario == null) {
+            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+        }
+
+        usuarioRepository.delete(usuario);
+        return new ResponseEntity<>("Usuario eliminado correctamente", HttpStatus.OK);
+    }
 
 }

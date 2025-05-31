@@ -1,10 +1,9 @@
 package com.munay.backend.records;
 
+import com.munay.backend.enums.Genero;
 import com.munay.backend.repositories.PasswordMatches;
 import jakarta.validation.constraints.*;
-import com.munay.backend.repositories.UniqueEmail;
-
-import java.util.List;
+import com.munay.backend.validators.UniqueEmail;
 
 @PasswordMatches
 public record RegisterRequest(
@@ -21,18 +20,19 @@ public record RegisterRequest(
         String password,
         @NotBlank(message = "Debes repetir la contraseña.")
         String confirmPassword,
-        @NotNull(message = "La edad es obligatoria.")
         @Min(value = 18, message = "La edad debe ser al menos 18 años.")
         int age,
-        @NotNull(message = "El teléfono es obligatorio.")
-        @Min(value = 600000000, message = "El teléfono debe ser un número válido.")
-        @Max(value = 799999999, message = "El teléfono debe ser un número válido.")
+        @Min(value = 600000000, message = "El teléfono debe ser un número español.")
+        @Max(value = 799999999, message = "El teléfono debe ser un número español.")
         long tel,
         @NotBlank(message = "La biografía es obligatoria.")
         String bio,
         @NotBlank(message = "La foto 1 es obligatoria.")
         String foto1,
         @NotBlank(message = "La foto 2 es obligatoria.")
-        String foto2
+        String foto2,
+        @NotNull(message = "El género es obligatorio.")
+        Genero genero,
+        boolean fumador
 ) {
 }

@@ -1,7 +1,7 @@
 package com.munay.backend.repositories;
 
 
-import com.munay.backend.config.PasswordMatchesValidator;
+import com.munay.backend.validators.PasswordMatchesValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
