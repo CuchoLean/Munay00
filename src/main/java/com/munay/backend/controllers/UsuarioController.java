@@ -1,7 +1,10 @@
 package com.munay.backend.controllers;
 
+import com.munay.backend.enums.Genero;
 import com.munay.backend.models.Match;
 import com.munay.backend.models.Usuario;
+import com.munay.backend.repositories.MessageRepository;
+import com.munay.backend.repositories.PostRepository;
 import com.munay.backend.services.JwtService;
 import com.munay.backend.repositories.MatchRepository;
 import com.munay.backend.repositories.UsuarioRepository;
@@ -9,8 +12,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,7 +31,13 @@ public class UsuarioController {
     @Autowired
     private MatchRepository matchRepository;
     @Autowired
+    private MessageRepository messageRepository;
+    @Autowired
+    private PostRepository postRepository;
+    @Autowired
     private JwtService jwtService;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @PostMapping("/crear")
@@ -51,13 +63,18 @@ public class UsuarioController {
     }
 
 
-    @PostMapping("/{userId}/like/{likedUserId}")
-    public ResponseEntity<String> likeUser(@PathVariable String userId, @PathVariable String likedUserId) {
-        Usuario user = usuarioRepository.findById(userId).orElse(null);
-        Usuario likedUser = usuarioRepository.findById(likedUserId).orElse(null);
+    @PostMapping("/like/{likedUserId}")
+    public ResponseEntity<String> likeUser(Authentication authentication, @PathVariable String likedUserId) {
+        String email = authentication.getName(); // email del JWT
+        Usuario user = usuarioRepository.findByEmail(email);
 
-        if (user == null || likedUser == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario autenticado no encontrado");
+        }
+
+        Usuario likedUser = usuarioRepository.findById(likedUserId).orElse(null);
+        if (likedUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario al que se quiere dar like no encontrado");
         }
 
         // Inicializar likes si es null
@@ -72,13 +89,13 @@ public class UsuarioController {
         }
 
         // Verificar si likedUser también dio like a user
-        if (likedUser.getLikes() != null && likedUser.getLikes().contains(userId)) {
-            boolean alreadyMatched = matchRepository.existsByIdUsuario1AndIdUsuario2(userId, likedUserId)
-                    || matchRepository.existsByIdUsuario2AndIdUsuario1(userId, likedUserId);
+        if (likedUser.getLikes() != null && likedUser.getLikes().contains(user.getId())) {
+            boolean alreadyMatched = matchRepository.existsByIdUsuario1AndIdUsuario2(user.getId(), likedUserId)
+                    || matchRepository.existsByIdUsuario2AndIdUsuario1(user.getId(), likedUserId);
 
             if (!alreadyMatched) {
                 Match match = Match.builder()
-                        .idUsuario1(userId)
+                        .idUsuario1(user.getId())
                         .idUsuario2(likedUserId)
                         .build();
                 matchRepository.save(match);
@@ -90,9 +107,18 @@ public class UsuarioController {
         return ResponseEntity.ok("El like ha sido enviado.");
     }
 
-    @GetMapping("/{userId}/usuarios-match")
-    public ResponseEntity<List<Usuario>> obtenerUsuariosConMatch(@PathVariable String userId) {
-        // Paso 1: Filtrar los matches en los que participa
+    @GetMapping("/usuarios-match")
+    public ResponseEntity<List<Usuario>> obtenerUsuariosConMatch(Authentication authentication) {
+        String email = authentication.getName(); // email del usuario desde JWT
+        Usuario actual = usuarioRepository.findByEmail(email);
+
+        if (actual == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        String userId = actual.getId();
+
+        // Filtrar los matches donde participa el usuario autenticado
         List<Match> matches = matchRepository.findAll().stream()
                 .filter(m -> Objects.equals(m.getIdUsuario1(), userId) || Objects.equals(m.getIdUsuario2(), userId))
                 .toList();
@@ -103,35 +129,46 @@ public class UsuarioController {
                 .distinct()
                 .toList();
 
-        // Paso 3: Obtener los usuarios de la base de datos
         List<Usuario> usuarios = usuarioRepository.findAllById(otrosIds);
 
         return ResponseEntity.ok(usuarios);
     }
 
+
     @GetMapping("/todosL")
-    public List<Usuario> getUsuariosNoLikeados(@RequestHeader("Authorization") String token) {
-        String email = jwtService.extractUsername(token.substring(7)); // Quitar "Bearer "
+    public ResponseEntity<List<Usuario>> getUsuariosNoLikeados(Authentication authentication) {
+        String email = authentication.getName(); // sub del JWT
         Usuario actual = usuarioRepository.findByEmail(email);
+
+        if (actual == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
         List<String> likes = actual.getLikes() != null ? actual.getLikes() : List.of();
 
-        return usuarioRepository.findAll().stream()
+        List<Usuario> noLikeados = usuarioRepository.findAll().stream()
                 .filter(u -> !likes.contains(u.getId()) && !u.getId().equals(actual.getId()))
                 .collect(Collectors.toList());
+
+        // Mezclar la lista aleatoriamente
+        Collections.shuffle(noLikeados);
+
+        return ResponseEntity.ok(noLikeados);
     }
 
+
     @GetMapping("/buscarUsuarioToken")
-    public ResponseEntity<Usuario> obtenerUsuarioPorToken(@RequestHeader("Authorization") String token) {
-        String email = jwtService.extractUsername(token.substring(7)); // quita "Bearer "
+    public ResponseEntity<Usuario> obtenerUsuarioPorToken(Authentication authentication) {
+        String email = authentication.getName(); // extraído del 'sub' del JWT
         Usuario usuario = usuarioRepository.findByEmail(email);
 
         if (usuario == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        return new ResponseEntity<>(usuario, HttpStatus.OK);
+        return ResponseEntity.ok(usuario);
     }
+
 
     @PutMapping("/actualizar")
     public ResponseEntity<Usuario> actualizarUsuario(
@@ -147,7 +184,7 @@ public class UsuarioController {
 
         // Solo actualizar campos válidos
         usuarioExistente.setName(datosNuevos.getName());
-        usuarioExistente.setPassword(datosNuevos.getPassword());
+        usuarioExistente.setPassword(passwordEncoder.encode(datosNuevos.getPassword()));
         usuarioExistente.setAge(datosNuevos.getAge());
         usuarioExistente.setTel(datosNuevos.getTel());
         usuarioExistente.setBio(datosNuevos.getBio());
@@ -159,16 +196,46 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/eliminar")
-    public ResponseEntity<String> eliminarUsuarioPorToken(@RequestHeader("Authorization") String token) {
-        String email = jwtService.extractUsername(token.substring(7)); // Quita "Bearer "
+    public ResponseEntity<String> eliminarUsuarioPorToken(Authentication authentication) {
+        String email = authentication.getName();  // Email extraído del JWT
         Usuario usuario = usuarioRepository.findByEmail(email);
 
         if (usuario == null) {
             return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
         }
 
+        String userId = usuario.getId();
+
+        messageRepository.deleteBySenderNameOrReceiverName(userId, userId);
+        postRepository.deleteByIdUsuario(userId);
+        matchRepository.deleteByIdUsuario1OrIdUsuario2(userId, userId);
+
         usuarioRepository.delete(usuario);
+
         return new ResponseEntity<>("Usuario eliminado correctamente", HttpStatus.OK);
     }
+    @GetMapping("/usuarios-sin-admin")
+    public ResponseEntity<List<Usuario>> obtenerUsuariosSinAdmin() {
+        List<Usuario> usuarios = usuarioRepository.findByGeneroNot(Genero.ADMIN);
+        return ResponseEntity.ok(usuarios);
+    }
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<String> eliminarUsuarioPorId(@PathVariable String id) {
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuario == null) {
+            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+        }
+
+        // Eliminar mensajes, posts y matches relacionados
+        messageRepository.deleteBySenderNameOrReceiverName(id, id);
+        postRepository.deleteByIdUsuario(id);
+        matchRepository.deleteByIdUsuario1OrIdUsuario2(id, id);
+
+        usuarioRepository.delete(usuario);
+
+        return new ResponseEntity<>("Usuario eliminado correctamente", HttpStatus.OK);
+    }
+
 
 }

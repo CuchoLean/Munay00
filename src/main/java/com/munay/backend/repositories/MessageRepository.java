@@ -10,5 +10,5 @@ public interface MessageRepository extends MongoRepository<Message, String> {
     List<Message> findBySenderNameAndReceiverName(String user1, String user2);
     List<Message> findBySenderNameAndReceiverNameOrSenderNameAndReceiverName(
             String sender1, String receiver1, String sender2, String receiver2);
-
+    void deleteBySenderNameOrReceiverName(String sender, String receiver);
 }

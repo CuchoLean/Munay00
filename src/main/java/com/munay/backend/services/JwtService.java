@@ -24,22 +24,26 @@ public class JwtService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
-    public String generateToken(final Usuario usuario){
-        return buildToken(usuario,jwtExpiration);
+    public String generateToken(final Usuario usuario) {
+        return buildToken(usuario, jwtExpiration);
     }
-    public  String generateRefreshToken(final Usuario usuario){
-        return buildToken(usuario,refreshExpiration);
+
+    public String generateRefreshToken(final Usuario usuario) {
+        return buildToken(usuario, refreshExpiration);
     }
 
     private String buildToken(final Usuario usuario, final long expiration) {
-    return Jwts.builder()
-            .claims(Map.of("id", usuario.getId()))
-            .subject(usuario.getEmail()).issuedAt(new Date(System.currentTimeMillis()))
-            .expiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(getSignInKey())
-            .compact();
+        return Jwts.builder()
+                .claims(Map.of(
+                        "id", usuario.getId(),
+                        "genero", usuario.getGenero()
+                )).subject(usuario.getEmail()).issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey())
+                .compact();
     }
-    private SecretKey getSignInKey(){
+
+    private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
