@@ -63,7 +63,8 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
-                "https://cucholean.github.io"  // <--- Agregado aquí
+                "https://cucholean.github.io",
+                "http://munayaws.duckdns.org/"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

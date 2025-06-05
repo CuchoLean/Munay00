@@ -1,6 +1,7 @@
 package com.munay.backend.models;
 
 import com.munay.backend.enums.Genero;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import jakarta.validation.constraints.*;
 import java.util.List;
 
 @Data
@@ -21,18 +21,39 @@ public class Usuario {
 
     @Id
     private String id;
+
+    @NotBlank(message = "El nombre es obligatorio.")
     private String name;
+
     @Indexed(unique = true)
+    @NotBlank(message = "El email es obligatorio.")
+    @Email(message = "El email debe ser válido.")
     private String email;
+
+    @NotBlank(message = "La contraseña es obligatoria.")
     private String password;
+
+    @Min(value = 18, message = "La edad debe ser al menos 18 años.")
     private int age;
+
+    @Min(value = 600000000, message = "El teléfono debe ser un número español.")
+    @Max(value = 799999999, message = "El teléfono debe ser un número español.")
     private long tel;
+
+    @NotBlank(message = "La biografía es obligatoria.")
     private String bio;
+
+    @NotNull(message = "La foto 1 es obligatoria.")
     private byte[] foto1;
+
+    @NotNull(message = "La foto 2 es obligatoria.")
     private byte[] foto2;
+
+    @NotNull(message = "El género es obligatorio.")
     private Genero genero;
+
     private boolean fumador;
+
     private List<String> likes;
 
 }
-

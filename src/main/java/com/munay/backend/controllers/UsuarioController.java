@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -118,22 +119,26 @@ public class UsuarioController {
 
         String userId = actual.getId();
 
-        // Filtrar los matches donde participa el usuario autenticado
-        List<Match> matches = matchRepository.findAll().stream()
-                .filter(m -> Objects.equals(m.getIdUsuario1(), userId) || Objects.equals(m.getIdUsuario2(), userId))
-                .toList();
+        // Filtrar los matches donde participa el usuario autenticado sin usar stream
+        List<Match> matches = new ArrayList<>();
+        for (Match m : matchRepository.findAll()) {
+            if (Objects.equals(m.getIdUsuario1(), userId) || Objects.equals(m.getIdUsuario2(), userId)) {
+                matches.add(m);
+            }
+        }
 
-        List<String> otrosIds = matches.stream()
-                .map(m -> Objects.equals(m.getIdUsuario1(), userId) ? m.getIdUsuario2() : m.getIdUsuario1())
-                .filter(Objects::nonNull)
-                .distinct()
-                .toList();
+        List<String> otrosIds = new ArrayList<>();
+        for (Match m : matches) {
+            String otroId = Objects.equals(m.getIdUsuario1(), userId) ? m.getIdUsuario2() : m.getIdUsuario1();
+            if (otroId != null && !otrosIds.contains(otroId)) {
+                otrosIds.add(otroId);
+            }
+        }
 
         List<Usuario> usuarios = usuarioRepository.findAllById(otrosIds);
 
         return ResponseEntity.ok(usuarios);
     }
-
 
     @GetMapping("/todosL")
     public ResponseEntity<List<Usuario>> getUsuariosNoLikeados(Authentication authentication) {
@@ -146,16 +151,18 @@ public class UsuarioController {
 
         List<String> likes = actual.getLikes() != null ? actual.getLikes() : List.of();
 
-        List<Usuario> noLikeados = usuarioRepository.findAll().stream()
-                .filter(u -> !likes.contains(u.getId()) && !u.getId().equals(actual.getId()))
-                .collect(Collectors.toList());
+        List<Usuario> noLikeados = new ArrayList<>();
+        for (Usuario u : usuarioRepository.findAll()) {
+            if (!likes.contains(u.getId()) && !u.getId().equals(actual.getId())) {
+                noLikeados.add(u);
+            }
+        }
 
         // Mezclar la lista aleatoriamente
         Collections.shuffle(noLikeados);
 
         return ResponseEntity.ok(noLikeados);
     }
-
 
     @GetMapping("/buscarUsuarioToken")
     public ResponseEntity<Usuario> obtenerUsuarioPorToken(Authentication authentication) {
@@ -168,7 +175,6 @@ public class UsuarioController {
 
         return ResponseEntity.ok(usuario);
     }
-
 
     @PutMapping("/actualizar")
     public ResponseEntity<Usuario> actualizarUsuario(
@@ -214,11 +220,13 @@ public class UsuarioController {
 
         return new ResponseEntity<>("Usuario eliminado correctamente", HttpStatus.OK);
     }
+
     @GetMapping("/usuarios-sin-admin")
     public ResponseEntity<List<Usuario>> obtenerUsuariosSinAdmin() {
         List<Usuario> usuarios = usuarioRepository.findByGeneroNot(Genero.ADMIN);
         return ResponseEntity.ok(usuarios);
     }
+
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<String> eliminarUsuarioPorId(@PathVariable String id) {
         Usuario usuario = usuarioRepository.findById(id).orElse(null);
@@ -236,6 +244,4 @@ public class UsuarioController {
 
         return new ResponseEntity<>("Usuario eliminado correctamente", HttpStatus.OK);
     }
-
-
 }

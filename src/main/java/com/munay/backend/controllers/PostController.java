@@ -29,13 +29,10 @@ public class PostController {
     // Crear un nuevo post
     @PostMapping
     public ResponseEntity<Post> crearPost(@RequestBody @Valid Post post, Authentication authentication) {
-        // Obtienes el nombre del usuario logueado
         String email = authentication.getName(); // `sub` del JWT = email
 
-        // Buscas al usuario en la base de datos
         Usuario usuario = usuarioRepository.findByEmail(email);
 
-        // Asignas el usuario al post antes de guardar
         post.setIdUsuario(usuario.getId());
         post.setNombreUsuario(usuario.getName());
 
