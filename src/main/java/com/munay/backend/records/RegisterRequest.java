@@ -22,10 +22,7 @@ public record RegisterRequest(
         String confirmPassword,
         @Min(value = 18, message = "La edad debe ser al menos 18 años.")
         int age,
-        @Min(value = 600000000, message = "El teléfono debe ser un número español.")
-        @Max(value = 799999999, message = "El teléfono debe ser un número español.")
-        long tel,
-        @NotBlank(message = "La biografía es obligatoria.")
+        @NotBlank(message = "La descripción es obligatoria.")
         String bio,
         @NotBlank(message = "La foto 1 es obligatoria.")
         String foto1,

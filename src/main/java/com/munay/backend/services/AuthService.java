@@ -33,7 +33,6 @@ public class AuthService {
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .age(request.age())
-                .tel(request.tel())
                 .bio(request.bio())
                 .foto1(foto1)
                 .foto2(foto2)

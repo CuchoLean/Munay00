@@ -1,6 +1,7 @@
 package com.munay.backend.models;
 
 import com.munay.backend.enums.Genero;
+import com.munay.backend.validators.UniqueEmail;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,21 +25,10 @@ public class Usuario {
 
     @NotBlank(message = "El nombre es obligatorio.")
     private String name;
-
-    @Indexed(unique = true)
-    @NotBlank(message = "El email es obligatorio.")
-    @Email(message = "El email debe ser válido.")
     private String email;
-
-    @NotBlank(message = "La contraseña es obligatoria.")
     private String password;
-
     @Min(value = 18, message = "La edad debe ser al menos 18 años.")
     private int age;
-
-    @Min(value = 600000000, message = "El teléfono debe ser un número español.")
-    @Max(value = 799999999, message = "El teléfono debe ser un número español.")
-    private long tel;
 
     @NotBlank(message = "La biografía es obligatoria.")
     private String bio;

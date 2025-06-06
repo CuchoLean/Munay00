@@ -178,24 +178,28 @@ public class UsuarioController {
 
     @PutMapping("/actualizar")
     public ResponseEntity<Usuario> actualizarUsuario(
-            @RequestHeader("Authorization") String token,
+            Authentication authentication,
             @Valid @RequestBody Usuario datosNuevos) {
+        System.out.println("datosNuevos: " + datosNuevos);
 
-        String email = jwtService.extractUsername(token.substring(7)); // quitar "Bearer "
+        String email = authentication.getName();  // Email extraído del JWT
         Usuario usuarioExistente = usuarioRepository.findByEmail(email);
 
         if (usuarioExistente == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
+        System.out.println("datosNuevos: " + datosNuevos);
         // Solo actualizar campos válidos
         usuarioExistente.setName(datosNuevos.getName());
-        usuarioExistente.setPassword(passwordEncoder.encode(datosNuevos.getPassword()));
+        if (datosNuevos.getPassword() != null && !datosNuevos.getPassword().isEmpty()) {
+            usuarioExistente.setPassword(passwordEncoder.encode(datosNuevos.getPassword()));
+        }
         usuarioExistente.setAge(datosNuevos.getAge());
-        usuarioExistente.setTel(datosNuevos.getTel());
         usuarioExistente.setBio(datosNuevos.getBio());
         usuarioExistente.setFoto1(datosNuevos.getFoto1());
         usuarioExistente.setFoto2(datosNuevos.getFoto2());
+        usuarioExistente.setFumador(datosNuevos.isFumador());
+        usuarioExistente.setGenero(datosNuevos.getGenero());
 
         Usuario actualizado = usuarioRepository.save(usuarioExistente);
         return new ResponseEntity<>(actualizado, HttpStatus.OK);
