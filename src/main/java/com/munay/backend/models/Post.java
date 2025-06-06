@@ -20,7 +20,7 @@ public class Post {
     private String id;
     private String idUsuario;
     private String nombreUsuario;
-    @NotNull(message = "La imagen no puede ser null")
+    @NotNull(message = "La imagen es obligatoria")
     @Size(min = 1, message = "La imagen no puede estar vacía")
     private byte[] imagen;
     @NotBlank(message = "El texto es obligatorio.")
