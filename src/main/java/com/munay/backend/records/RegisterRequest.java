@@ -23,6 +23,7 @@ public record RegisterRequest(
         @Min(value = 18, message = "La edad debe ser al menos 18 años.")
         int age,
         @NotBlank(message = "La descripción es obligatoria.")
+        @Size(max = 255, message = "La descripción no puede tener más de 255 caracteres.")
         String bio,
         @NotBlank(message = "La foto 1 es obligatoria.")
         String foto1,

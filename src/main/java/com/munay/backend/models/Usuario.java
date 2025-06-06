@@ -30,7 +30,8 @@ public class Usuario {
     @Min(value = 18, message = "La edad debe ser al menos 18 años.")
     private int age;
 
-    @NotBlank(message = "La biografía es obligatoria.")
+    @NotBlank(message = "La descripción es obligatoria.")
+    @Size(max = 255, message = "La descripción no puede tener más de 255 caracteres.")
     private String bio;
 
     @NotNull(message = "La foto 1 es obligatoria.")
