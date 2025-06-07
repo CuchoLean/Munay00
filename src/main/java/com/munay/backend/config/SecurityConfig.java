@@ -64,8 +64,9 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:3000",
                 "https://cucholean.github.io",
-                "http://munayaws.duckdns.org/"
-        ));
+                "http://munayaws.duckdns.org/",
+                "https://munayaws.duckdns.org/"
+                ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
